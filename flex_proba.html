@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NURBS curve 2D</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+    <style>
+        body{padding:0; margin:0;}
+        span.le{ font-weight: bold; }
+        #wrapper{ display: flex; align-items: stretch; width: 100vw; height: 100vh; }
+        #one{ width: 90%; background-color: #6f6f6f; display: flex; flex-direction: column; }
+        #two{ flex-grow: 100; background-color: #fcfcfc; display: flex; flex-direction: column; }
+        #leiras{ min-height: 5%; background-color: #fcfcfc; display: flex; align-items: center; justify-content: center; border-right: 2px solid #6f6f6f; }
+        #pleir{ color: #543E00; margin: 0;}
+        #cvas{ flex-grow: 100; padding: 0; margin: 0;}
+        #deg{ height: 2rem; width: 100%; display: flex; align-items: center; padding: 0.5rem 0; }
+        #degspan{ margin-left: 1rem; }
+        #usage{ font-weight: bold; color: darkgrey; }
+        .knotdiv{ padding: 0 0 0.75rem 1rem; }
+        input{ font-size: 14px; max-width: 3rem; }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div id="one">
+        <div id="leiras">
+            <p id="pleir"><span id="usage">Usage:</span> <span class="le">new point:</span> left click | <span class="le">drag a point:</span> move mouse while pressing mouse left button near the point | <span class="le">delete a point:</span> right click near the point | <span class="le">increase / decrease a point weight:</span> scroll up / scroll down near the point</p>
+        </div>
+        <div id="cvas"></div>
+    </div>
+    
+    <div id="two" style="">
+        <div id="deg">
+            <span id="degspan">degree (p):&nbsp;</span>
+            <input id="idegree" dir="rtl" type="number" value="3" min="1" max="6" step="1">
+        </div>
+        <div style="padding: 0.5rem 0 0.5rem 1rem">Values of knots:</div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="0" min="0" max="0" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="0" min="0" max="0" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="0" min="0" max="0" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="0" min="0" max="1" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="1" min="0" max="2" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="2" min="1" max="3" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="3" min="2" max="4" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="4" min="3" max="4" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="4" min="4" max="4" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="4" min="4" max="4" step="0.1">
+        </div>
+        <div class="knotdiv">
+            <input dir="rtl" type="number" value="4" min="4" max="1000" step="0.1">
+        </div>
+    </div>
+</div>
+<script src="sketch_public_min.js"></script>
+<script type="text/javascript">
+    document.getElementById("idegree").addEventListener('change', Pchanged);
+    
+    function Pchanged(e) {
+        let newp = e.target.value * 1;
+        // if new value greater than current
+        if ( newp > degree ) {
+            // add knot to the end
+            U.push(U[U.length - 1] + 1);
+            let lastinput = document.getElementById("two").lastElementChild.firstElementChild;
+            let newdiv = document.getElementById("two").lastElementChild.cloneNode(true);
+            let newinput = newdiv.firstElementChild;
+            newinput.min = lastinput.value;
+            newinput.max = 1000;
+            newinput.value = newinput.min * 1 + 1;
+            newinput.addEventListener('change', Knotchanged);
+            lastinput.max = newinput.value;
+            document.getElementById("two").appendChild(newdiv);
+        }else if( newp < degree ){
+            // delete last knot dom element
+            let x = document.getElementsByClassName("knotdiv");
+            x[U.length - 2].firstElementChild.max = 1000;
+            x[U.length - 1].remove();
+            U.pop();
+        }
+        degree = newp;
+        drawed = false;
+    }
+    
+    var ff = document.getElementsByClassName("knotdiv");
+    for ( let gg = 0; gg < ff.length; ++gg ) {
+        ff[gg].firstElementChild.addEventListener('change', Knotchanged);
+    }
+    
+    function Knotchanged(e) {
+        let dex = 0, tv = e.target.value * 1;
+        let o = document.getElementsByClassName("knotdiv");
+        for ( let r = 0; r < o.length; ++r ) {
+            if ( this == o[r].firstElementChild ) {
+                dex = r;
+                break;
+            }
+        }
+        if ( U[dex] != tv ) {
+            // console.log(tv, 'dex: ', dex, o[dex].firstElementChild.min, ' ', o[dex].firstElementChild.max);
+            U[dex] = tv;
+            var q = this.parentElement;
+            if ( dex < o.length - 1 ) {
+                q.nextElementSibling.firstElementChild.min = tv;
+            }
+            if ( dex > 0 ) {
+                q.previousElementSibling.firstElementChild.max = tv;
+            }
+            drawed = false;
+        }
+    }
+    
+    document.getElementById("cvas").addEventListener('contextmenu', Norightclick);
+    
+    function Norightclick(e) {
+        e.preventDefault();
+        return false;
+    }
+</script>
+</body>
+</html>
