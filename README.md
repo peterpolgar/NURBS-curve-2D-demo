@@ -1,4 +1,4 @@
-# NURBS curve 2D
+# NURBS curve 2D built with p5.js
 NURBS curve 2D demonstration on a webpage: https://peterpolgar.github.io/NURBS-curve-2D/
 
 Built with p5.js. Programmed in an iterative way.
