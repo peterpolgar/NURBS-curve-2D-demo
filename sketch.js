@@ -214,7 +214,7 @@ function mousePressed() {
                 
                 let elemIdegree = document.getElementById("idegree");
                 --elemIdegree.max;
-                if ( n == degree ) {
+                if ( n == degree - 1 ) {
                     --degree;
                     // degree dom element decrease
                     --elemIdegree.value;
@@ -224,6 +224,7 @@ function mousePressed() {
                     x[U.length - 1].remove();
                     U.pop();
                 }
+                dragged_point = -1;
                 drawed = false;
             }
         }else if( mouseButton === LEFT ){
@@ -253,7 +254,6 @@ function mousePressed() {
                 
                 ++document.getElementById("idegree").max;
                 
-                dragged_point = points.length - 1;
                 drawed = false;
             }
         }
